@@ -2,6 +2,7 @@
 This is the application running on your PC used for fpa or *Fingerprint Authentication*.  
 This application is required for the fpa protocol to work.  
 This application is the middle man of your authentications, it needs to be on the same network as the phone is.  
+The application works together with the [Phone App](https://github.com/AdvancedHacker101/FPA-PhoneApp)  
 It provides features like:
 * Logging in to windows with your fingerprint
 * Logging in to website with your fingerprint
