@@ -185,9 +185,7 @@ namespace FingerPrintAuthenticator
         /// Display a QR Code requsting to store a password on the android device
         /// </summary>
         /// <param name="url">The plain text url to store</param>
-        /// <param name="username">The username to store</param>
-        /// <param name="password">The password to store</param>
-        internal void RequestPasswordStore(string url, string username, string password)
+        internal void RequestPasswordStore(string url)
         {
             Action displayQRCode = new Action(() => {
                 string hashName = SessionCrypto.DigestMessage(url);

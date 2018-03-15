@@ -285,16 +285,16 @@ namespace FingerPrintAuthenticator
                         else if (sessionTextData == "getuser")
                         {
                             if (jsSrv == null) throw new InvalidOperationException("Can't store password while javascript server is down");
-                            Tuple<string, string> creds = jsSrv.GetCredentials(readObject.requestString.Substring(7));
-                            if (creds == null) throw new NullReferenceException("Can't find credentials for the specified web site hash");
-                            readObject.credentials.username = creds.Item1;
-                            readObject.credentials.password = creds.Item2;
+                            object[] data = jsSrv.storePasswordQueue.GetQueueData(readObject.requestString.Substring(7));
+                            if (data == null || data.Length != 2) throw new NullReferenceException("Can't find credentials for the specified web site hash");
+                            readObject.credentials.username = (string)data[0];
+                            readObject.credentials.password = (string)data[1];
                             SendString(readObject.client, Convert.ToBase64String(readObject.session.EncryptData(Encoding.UTF8.GetBytes(readObject.credentials.username))));
                         }
                         else if (sessionTextData == "getpass")
                         {
                             SendString(readObject.client, Convert.ToBase64String(readObject.session.EncryptData(Encoding.UTF8.GetBytes(readObject.credentials.password))));
-                            if (jsSrv != null) jsSrv.getPasswordQueue.UpdateState(readObject.requestString.Substring(7), JavascriptServer.CredentialTransferState.Success);
+                            if (jsSrv != null) jsSrv.storePasswordQueue.UpdateState(readObject.requestString.Substring(7), JavascriptServer.CredentialTransferState.Success);
                             DismissIfOpen?.Invoke();
                             noRead = true;
                         }

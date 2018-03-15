@@ -42,7 +42,7 @@ namespace FingerPrintAuthenticator
         /// <summary>
         /// Password store request queue
         /// </summary>
-        private Dictionary<string, CredentialTransferState> storeQueue = new Dictionary<string, CredentialTransferState>();
+        public QueueManager storePasswordQueue;
         /// <summary>
         /// Password get request queue
         /// </summary>
@@ -60,6 +60,7 @@ namespace FingerPrintAuthenticator
             getPasswordQueue = new QueueManager();
             getKeyQueue = new QueueManager();
             storeKeyQueue = new QueueManager();
+            storePasswordQueue = new QueueManager();
         }
 
         /// <summary>
@@ -364,7 +365,9 @@ namespace FingerPrintAuthenticator
                         readObject.urlHash = SessionCrypto.DigestMessage(url);
                         readObject.userName = userName;
                         readObject.password = password;
-                        ctx.RequestPasswordStore(url, userName, password);
+                        storePasswordQueue.Add(readObject.urlHash);
+                        storePasswordQueue.UpdateExtraData(readObject.urlHash, userName, password);
+                        ctx.RequestPasswordStore(url);
                         SendMessage(readObject.client, "stor-init");
                     }
                 }
@@ -415,23 +418,23 @@ namespace FingerPrintAuthenticator
                 }
                 else if (resource == "stor-state") //Get the state of storing the password on the phone
                 {
-                    CredentialTransferState state = (storeQueue.TryGetValue(readObject.urlHash, out CredentialTransferState cts)) ? cts : CredentialTransferState.Pending;
-                    string message;
-                    switch (state)
+                    CredentialTransferState qState = storePasswordQueue.GetQueueState(readObject.urlHash);
+                    switch (qState)
                     {
                         case CredentialTransferState.Success:
-                            message = "stor-completed";
+                            storePasswordQueue.Remove(readObject.urlHash);
+                            SendMessage(readObject.client, "stor-completed");
+                            Form1.WriteLine("Store confirmed");
                             break;
                         case CredentialTransferState.Failed:
-                            message = "stor-fail";
+                            SendMessage(readObject.client, "stor-fail");
+                            storePasswordQueue.Remove(readObject.urlHash);
+                            Form1.WriteLine("Store fail alert sent to the browser");
                             break;
                         default:
-                            message = "stor-pending";
+                            SendMessage(readObject.client, "stor-pending");
                             break;
                     }
-
-                    SendMessage(readObject.client, message);
-                    Form1.WriteLine("Stor get state");
                 }
                 else if (resource == "get-state") //Get the state of getting hte password from the phone
                 {
