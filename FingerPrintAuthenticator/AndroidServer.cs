@@ -87,10 +87,6 @@ namespace FingerPrintAuthenticator
             /// Sent Credentials
             /// </summary>
             public Credentials credentials;
-            /// <summary>
-            /// Key to send to the device
-            /// </summary>
-            public string pushKey;
         }
 
         /// <summary>

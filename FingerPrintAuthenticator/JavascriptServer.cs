@@ -47,7 +47,13 @@ namespace FingerPrintAuthenticator
         /// Password get request queue
         /// </summary>
         public QueueManager getPasswordQueue;
+        /// <summary>
+        /// Key get request queue
+        /// </summary>
         public QueueManager getKeyQueue;
+        /// <summary>
+        /// Key store request queue
+        /// </summary>
         public QueueManager storeKeyQueue;
 
         /// <summary>
@@ -412,6 +418,12 @@ namespace FingerPrintAuthenticator
                         clientTracker++;
                     }
                 }
+                else if (resource == "get-random") //Get random password
+                {
+                    string randomData = SessionCrypto.GenerateRandomPassword();
+                    SendMessage(readObject.client, $"set-random{randomData}");
+                    Form1.WriteLine("Random data sent to browser");
+                }
                 else if (!gotTracker) //Drop if not setting tracker and tracker is not set
                 {
                     Form1.WriteLine("GET without tracker and not setting tracker");
@@ -436,7 +448,7 @@ namespace FingerPrintAuthenticator
                             break;
                     }
                 }
-                else if (resource == "get-state") //Get the state of getting hte password from the phone
+                else if (resource == "get-state") //Get the state of getting the password from the phone
                 {
                     CredentialTransferState qState = getPasswordQueue.GetQueueState(readObject.urlHash);
 
@@ -459,7 +471,7 @@ namespace FingerPrintAuthenticator
                             break;
                     }
                 }
-                else if (resource == "kget-state")
+                else if (resource == "kget-state") //Get the state of getting the key from the phone
                 {
                     CredentialTransferState qState = getKeyQueue.GetQueueState(readObject.urlHash);
 
@@ -482,7 +494,7 @@ namespace FingerPrintAuthenticator
                             break;
                     }
                 }
-                else if (resource == "kpush-state")
+                else if (resource == "kpush-state") //Get the satte of storing the key on the phone
                 {
                     Form1.WriteLine($"ReadObject url hash: {readObject.urlHash}");
                     Form1.WriteLine($"ReadObject client tracker: {readObject.cTracker}");
@@ -509,7 +521,7 @@ namespace FingerPrintAuthenticator
 
                 readObject.contentLength = 0;
             }
-            else if (method == "OPTIONS")
+            else if (method == "OPTIONS") //Handle pre-fetch request when dealing with the 2Fa API
             {
                 SendMessage(readObject.client, "", "\r\nAccess-Control-Allow-Headers: Client-Tracker");
                 Form1.WriteLine("Options response sent");
