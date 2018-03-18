@@ -13,7 +13,8 @@ This project is in development stage, so regular users may check back later for 
 Follow these steps: 
 1. Fork the project
 2. Open up the project with visual studio
-3. Press the green `Start` button or press `F5`
+3. You need to download the [BouncyCastle](http://www.bouncycastle.org/csharp/download/bccrypto-csharp-1.8.1-src.zip) C\# Dll and reference it
+4. Press the green `Start` button or press `F5`
 
 That's it, the application is now running.
 
